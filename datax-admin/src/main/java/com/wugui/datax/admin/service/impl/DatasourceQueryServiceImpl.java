@@ -2,6 +2,7 @@ package com.wugui.datax.admin.service.impl;
 
 import cn.hutool.core.util.ObjectUtil;
 import com.google.common.collect.Lists;
+import com.wugui.datax.admin.dto.HiveWriterDto;
 import com.wugui.datax.admin.entity.JobDatasource;
 import com.wugui.datax.admin.service.DatasourceQueryService;
 import com.wugui.datax.admin.service.JobDatasourceService;
@@ -111,5 +112,13 @@ public class DatasourceQueryServiceImpl implements DatasourceQueryService {
         }
         BaseQueryTool queryTool = QueryToolFactory.getByDbType(jdbcDatasource);
         return queryTool.getColumnsByQuerySql(querySql);
+    }
+
+    @Override
+    public HiveWriterDto getDefaultHiveWriterDto(Long id, String tableName) throws IOException{
+        //获取数据源对象
+        JobDatasource datasource = jobDatasourceService.getById(id);
+        BaseQueryTool queryTool = QueryToolFactory.getByDbType(datasource);
+        return queryTool.getDefaultHiveWriterDto(tableName);
     }
 }

@@ -1,5 +1,7 @@
 package com.wugui.datax.admin.service;
 
+import com.wugui.datax.admin.dto.HiveWriterDto;
+
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
@@ -59,4 +61,12 @@ public interface DatasourceQueryService {
      * @return
      */
     List<String> getTableSchema(Long id);
+    /**
+     * 根据数据源id和表名获取hive表元数据
+     *
+     * @param id
+     * @return
+     */
+    HiveWriterDto getDefaultHiveWriterDto(Long id, String tableName) throws IOException;
+
 }

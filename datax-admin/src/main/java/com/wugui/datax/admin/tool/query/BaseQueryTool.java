@@ -1,16 +1,19 @@
 package com.wugui.datax.admin.tool.query;
 
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONUtil;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.wugui.datatx.core.util.Constants;
 import com.wugui.datax.admin.core.util.LocalCacheUtil;
+import com.wugui.datax.admin.dto.HiveWriterDto;
 import com.wugui.datax.admin.entity.JobDatasource;
 import com.wugui.datax.admin.tool.database.ColumnInfo;
 import com.wugui.datax.admin.tool.database.DasColumn;
 import com.wugui.datax.admin.tool.database.TableInfo;
 import com.wugui.datax.admin.tool.meta.DatabaseInterface;
 import com.wugui.datax.admin.tool.meta.DatabaseMetaFactory;
+import com.wugui.datax.admin.tool.meta.HiveDatabaseMeta;
 import com.wugui.datax.admin.util.AESUtil;
 import com.wugui.datax.admin.util.JdbcConstants;
 import com.wugui.datax.admin.util.JdbcUtils;
@@ -486,6 +489,54 @@ public abstract class BaseQueryTool implements QueryToolInterface {
         }
     }
 
+    public HiveWriterDto getDefaultHiveWriterDto(String tableName) {
+
+        Statement stmt = null;
+        ResultSet rs = null;
+        String location = "";
+        String fieldDelim = "";
+        try {
+            stmt = connection.createStatement();
+            //获取sql
+            String sql = HiveDatabaseMeta.getTableDescribe(tableName);
+            rs = stmt.executeQuery(sql);
+            while (rs.next()) {
+                String columnName = rs.getString("col_name");
+                String dataType = rs.getString("data_type");
+                String columnComment = rs.getString("comment");
+                //分隔符
+                if(StrUtil.isNotBlank(dataType)&&"field.delim".equals(dataType.trim())){
+                    fieldDelim = columnComment;
+                }
+                //hdfs 路径
+                if(StrUtil.isNotBlank(columnName)&&"Location:".equals(columnName.trim())){
+                    location = dataType;
+                }
+            }
+        } catch (SQLException e) {
+            logger.error("[getTableNames Exception] --> "
+                    + "the exception message is:" + e.getMessage());
+        } finally {
+            JdbcUtils.close(rs);
+            JdbcUtils.close(stmt);
+        }
+
+        HiveWriterDto hiveWriterDto = new HiveWriterDto();
+        hiveWriterDto.setWriteFieldDelimiter(fieldDelim);
+        hiveWriterDto.setWriteMode("nonConflict");//默认冲突报错
+        hiveWriterDto.setWriterFileType("text");
+        if(StrUtil.isNotBlank(location)){
+            String[] split = location.split("/");
+            String fileName=split[split.length-1];
+            String DefaultFS=split[0]+"/"+split[1]+"/"+split[2];
+            hiveWriterDto.setWriterDefaultFS(DefaultFS);
+            hiveWriterDto.setWriterFileName(fileName);
+            String path = location.replace(hiveWriterDto.getWriterDefaultFS(),"").replace("/"+hiveWriterDto.getWriterFileName(),"");
+            hiveWriterDto.setWriterPath(path);
+        }
+        return hiveWriterDto;
+    }
+
     public List<String> getTableSchema() {
         List<String> schemas = new ArrayList<>();
         Statement stmt = null;
@@ -511,5 +562,25 @@ public abstract class BaseQueryTool implements QueryToolInterface {
 
     protected String getSQLQueryTableSchema() {
         return sqlBuilder.getSQLQueryTableSchema();
+    }
+
+
+    public static void main(String[] args) {
+        String location = "hdfs://localhost:9000/user/hive/warehouse/acs_db.db/t_vs_employee";
+        String fieldDelim = "\t";
+        HiveWriterDto hiveWriterDto = new HiveWriterDto();
+        hiveWriterDto.setWriteFieldDelimiter(fieldDelim);
+        hiveWriterDto.setWriteMode("nonConflict");//默认冲突报错
+        hiveWriterDto.setWriterFileType("text");
+        if(StrUtil.isNotBlank(location)){
+            String[] split = location.split("/");
+            String fileName=split[split.length-1];
+            String DefaultFS=split[0]+"/"+split[1]+"/"+split[2];
+            hiveWriterDto.setWriterDefaultFS(DefaultFS);
+            hiveWriterDto.setWriterFileName(fileName);
+            String path = location.replace(hiveWriterDto.getWriterDefaultFS(),"").replace("/"+hiveWriterDto.getWriterFileName(),"");
+            hiveWriterDto.setWriterPath(path);
+        }
+        System.out.println(JSONUtil.toJsonStr(hiveWriterDto));
     }
 }

@@ -27,5 +27,9 @@ public class HiveDatabaseMeta extends BaseDatabaseMeta implements DatabaseInterf
         return "show tables";
     }
 
+    public static String getTableDescribe(String tableName) {
+        return "DESCRIBE FORMATTED "+tableName;
+    }
+
 
 }

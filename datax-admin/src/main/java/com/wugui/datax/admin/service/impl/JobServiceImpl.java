@@ -10,15 +10,20 @@ import com.wugui.datax.admin.core.thread.JobScheduleHelper;
 import com.wugui.datax.admin.core.util.I18nUtil;
 import com.wugui.datax.admin.dto.DataXBatchJsonBuildDto;
 import com.wugui.datax.admin.dto.DataXJsonBuildDto;
+import com.wugui.datax.admin.dto.HiveWriterDto;
+import com.wugui.datax.admin.entity.JobDatasource;
 import com.wugui.datax.admin.entity.JobGroup;
 import com.wugui.datax.admin.entity.JobInfo;
 import com.wugui.datax.admin.entity.JobLogReport;
 import com.wugui.datax.admin.entity.JobTemplate;
 import com.wugui.datax.admin.mapper.*;
 import com.wugui.datax.admin.service.DatasourceQueryService;
+import com.wugui.datax.admin.service.JobDatasourceService;
 import com.wugui.datax.admin.service.DataxJsonService;
 import com.wugui.datax.admin.service.JobService;
+import com.wugui.datax.admin.tool.datax.writer.HiveWriter;
 import com.wugui.datax.admin.util.DateFormatUtils;
+import com.wugui.datax.admin.util.JdbcConstants;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,6 +57,8 @@ public class JobServiceImpl implements JobService {
     private JobLogReportMapper jobLogReportMapper;
     @Resource
     private DatasourceQueryService datasourceQueryService;
+    @Resource
+    private JobDatasourceService jobJdbcDatasourceService;
     @Resource
     private JobTemplateMapper jobTemplateMapper;
     @Resource
@@ -431,6 +438,15 @@ public class JobServiceImpl implements JobService {
             rColumns = datasourceQueryService.getColumns(dto.getReaderDatasourceId(), rdTables.get(i));
             wColumns = datasourceQueryService.getColumns(dto.getWriterDatasourceId(), wrTables.get(i));
 
+            /*************增加HiveWriterDto by huang ****************/
+            JobDatasource writerDatasource = jobJdbcDatasourceService.getById(dto.getWriterDatasourceId());
+            HiveWriterDto defaultHiveWriterDto=null;
+            if(JdbcConstants.HIVE.equals(writerDatasource.getDatasource())) {
+                defaultHiveWriterDto = datasourceQueryService.getDefaultHiveWriterDto(dto.getWriterDatasourceId(), wrTables.get(i));
+            }
+            jsonBuild.setHiveWriter(defaultHiveWriterDto);
+            /*************增加HiveWriterDto by huang ****************/
+
             jsonBuild.setReaderDatasourceId(dto.getReaderDatasourceId());
             jsonBuild.setWriterDatasourceId(dto.getWriterDatasourceId());
 
@@ -447,6 +463,7 @@ public class JobServiceImpl implements JobService {
             List<String> wdTable = new ArrayList<>();
             wdTable.add(wrTables.get(i));
             jsonBuild.setWriterTables(wdTable);
+
 
             String json = dataxJsonService.buildJobJson(jsonBuild);
 

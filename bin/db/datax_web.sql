@@ -354,3 +354,6 @@ CHANGE COLUMN `author` `user_id` INT(11) NOT NULL COMMENT '修改用户' ;
 
 ALTER TABLE `job_info`
 CHANGE COLUMN `increment_type` `increment_type` TINYINT(4) NULL DEFAULT 0 COMMENT '增量类型' ;
+
+ALTER TABLE job_info ADD custom_param varchar(200) NULL;
+ALTER TABLE job_template ADD custom_param varchar(200) NULL;

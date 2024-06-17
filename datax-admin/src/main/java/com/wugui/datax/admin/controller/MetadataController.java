@@ -1,6 +1,7 @@
 package com.wugui.datax.admin.controller;
 
 import com.baomidou.mybatisplus.extension.api.R;
+import com.wugui.datax.admin.dto.HiveWriterDto;
 import com.wugui.datax.admin.service.DatasourceQueryService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -87,6 +88,19 @@ public class MetadataController extends BaseController {
     @ApiOperation("根据数据源id和表名获取所有字段")
     public R<List<String>> getColumns(Long datasourceId, String tableName) throws IOException {
         return success(datasourceQueryService.getColumns(datasourceId, tableName));
+    }
+
+    /**
+     * 根据数据源id和表名获取hive表元数据
+     *
+     * @param datasourceId 数据源id
+     * @param tableName    表名
+     * @return
+     */
+    @GetMapping("/getDefaultHiveWriterDto")
+    @ApiOperation("根据数据源id和表名获取hive表元数据")
+    public R<HiveWriterDto> getDefaultHiveWriterDto(Long datasourceId, String tableName) throws IOException {
+        return success(datasourceQueryService.getDefaultHiveWriterDto(datasourceId, tableName));
     }
 
     /**
