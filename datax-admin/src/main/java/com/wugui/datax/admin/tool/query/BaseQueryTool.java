@@ -507,6 +507,9 @@ public abstract class BaseQueryTool implements QueryToolInterface {
                 //分隔符
                 if(StrUtil.isNotBlank(dataType)&&"field.delim".equals(dataType.trim())){
                     fieldDelim = columnComment.trim();
+                    if(fieldDelim.equals("\\t")){
+                        fieldDelim = "\t";
+                    }
                 }
                 //hdfs 路径
                 if(StrUtil.isNotBlank(columnName)&&"Location:".equals(columnName.trim())){
