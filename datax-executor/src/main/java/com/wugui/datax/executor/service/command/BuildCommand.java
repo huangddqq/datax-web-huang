@@ -2,7 +2,6 @@ package com.wugui.datax.executor.service.command;
 
 import com.wugui.datatx.core.biz.model.TriggerParam;
 import com.wugui.datatx.core.enums.IncrementTypeEnum;
-import com.wugui.datatx.core.log.JobLogger;
 import com.wugui.datatx.core.util.Constants;
 import com.wugui.datatx.core.util.DateUtil;
 import com.wugui.datax.executor.util.SystemUtils;
@@ -45,7 +44,7 @@ public class BuildCommand {
             cmdArr.add(doc.replaceAll(SPLIT_SPACE, TRANSFORM_SPLIT_SPACE));
         }
         cmdArr.add(tmpFilePath);
-        cmdArr.add(buildDataXCustomParam(tgParam));
+//        cmdArr.add(buildDataXCustomParam(tgParam));//会引起参数错误 暂时先去掉 Usage: datax.py [options] job-url-or-pathUsage: datax.py [options] job-url-or-path
         return cmdArr.toArray(new String[cmdArr.size()]);
     }
 

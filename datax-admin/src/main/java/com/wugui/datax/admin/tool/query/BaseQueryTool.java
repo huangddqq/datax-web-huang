@@ -506,7 +506,7 @@ public abstract class BaseQueryTool implements QueryToolInterface {
                 String columnComment = rs.getString("comment");
                 //分隔符
                 if(StrUtil.isNotBlank(dataType)&&"field.delim".equals(dataType.trim())){
-                    fieldDelim = columnComment;
+                    fieldDelim = columnComment.trim();
                 }
                 //hdfs 路径
                 if(StrUtil.isNotBlank(columnName)&&"Location:".equals(columnName.trim())){
@@ -531,7 +531,7 @@ public abstract class BaseQueryTool implements QueryToolInterface {
             String DefaultFS=split[0]+"/"+split[1]+"/"+split[2];
             hiveWriterDto.setWriterDefaultFS(DefaultFS);
             hiveWriterDto.setWriterFileName(fileName);
-            String path = location.replace(hiveWriterDto.getWriterDefaultFS(),"").replace("/"+hiveWriterDto.getWriterFileName(),"");
+            String path = location.replace(hiveWriterDto.getWriterDefaultFS(),"");
             hiveWriterDto.setWriterPath(path);
         }
         return hiveWriterDto;
